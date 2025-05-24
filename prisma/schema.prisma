@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  telegramId      BigInt           @unique
+  username        String?
+  firstName       String?
+  lastName        String?
+  languageCode    String?
+  isBot           Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  jobApplications JobApplication[]
+  messages        Message[]
+  registration    Registration?
+  training        Training?
+  settings        UserSettings?
+}
+
+model UserSettings {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  notifications Boolean  @default(true)
+  timezone      String?  @default("UTC")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  userId    String
+  text      String
+  type      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Registration {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  fullName          String
+  dateOfBirth       DateTime
+  gender            String
+  phoneNumber       String
+  email             String
+  presentAddress    String
+  maritalStatus     String
+  height            Float
+  weight            Float
+  faceColor         String
+  talentCategories  String[]
+  preferredLanguage String
+  registrationFee   Float
+  isPaid            Boolean  @default(false)
+  paymentMethod     String?
+  paymentProof      String?
+  paymentStatus     String   @default("pending")
+  status            String   @default("pending")
+  nationalIdPath    String?  // Path to stored ID file
+  photoPath         String?  // Path to stored photo
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Training {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  courses        String[]
+  onlineTraining String[]
+  isPaid         Boolean  @default(false)
+  paymentMethod  String?
+  paymentProof   String?
+  paymentStatus  String   @default("pending")
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         String?
+  level          String?
+  startDate      DateTime?
+  endDate        DateTime?
+  location       String?
+}
+
+model JobApplication {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  coverLetter       String
+  age               Int
+  contactPhone      String
+  contactEmail      String
+  telegramUsername  String?
+  educationDocPath  String    // Path to stored education document
+  experienceDocPath String    // Path to stored experience document
+  socialMediaLinks  String[]  @default([]) // Array of social media links, empty by default
+  status            String    @default("pending")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
