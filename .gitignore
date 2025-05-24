@@ -5,6 +5,10 @@
 # Dependencies
 node_modules/
 
+# Uploads
+uploads/
+upload/
+
 # Logs
 logs
 *.log
